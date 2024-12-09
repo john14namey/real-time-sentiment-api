@@ -4,12 +4,6 @@ import os
 from datetime import datetime
 
 
-
-import tweepy
-import pandas as pd
-import os
-from datetime import datetime
-
 # Twitter API credentials (replace with your actual credentials)
 API_KEY = "wrsaH34PC3PbpP78fK7F9jDrH"
 API_SECRET = "dcSjztgOSwlGDrLAsM8VzTJtHDseZ9tRPUsUsXyLxyZYfS2P5x"
@@ -29,17 +23,39 @@ def authenticate_twitter():
     return client
 
 # Fetch tweets based on a keyword using Twitter API v2
-def fetch_tweets(client, keyword, count=100):
+def fetch_tweets(client, keyword, total_count=500):
     tweets_data = []
+    next_token = None
+    fetched_count = 0
+
     try:
-        # Using the v2 API search endpoint
-        response = client.search_recent_tweets(query=keyword, tweet_fields=["created_at"], max_results=count)
-        for tweet in response.data:
-            tweets_data.append({
-                "created_at": tweet.created_at,
-                "username": tweet.author_id,
-                "text": tweet.text
-            })
+        while fetched_count < total_count:
+            # Fetch between 10 and 100 tweets per request
+            remaining_tweets = total_count - fetched_count
+            max_results = max(10, min(100, remaining_tweets))
+
+            response = client.search_recent_tweets(
+                query=keyword,
+                tweet_fields=["created_at", "author_id", "text"],
+                max_results=max_results,
+                next_token=next_token,
+            )
+
+            if response.data:
+                for tweet in response.data:
+                    tweets_data.append({
+                        "created_at": tweet.created_at,
+                        "author_id": tweet.author_id,
+                        "text": tweet.text,
+                    })
+                fetched_count += len(response.data)
+                print(f"Fetched {fetched_count} tweets so far...")
+
+            # Handle pagination
+            next_token = response.meta.get("next_token")
+            if not next_token:
+                break
+
     except tweepy.errors.TweepyException as e:
         print(f"Error: {e}")
 
