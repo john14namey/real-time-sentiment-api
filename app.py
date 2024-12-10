@@ -38,4 +38,5 @@ def get_tweets_by_sentiment(sentiment):
 
 # Run the Flask app
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))  # Get Heroku's assigned PORT or default to 5000
+    app.run(host='0.0.0.0', port=port, debug=True)  # Bind to 0.0.0.0 for external access
