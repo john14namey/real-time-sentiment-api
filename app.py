@@ -5,7 +5,7 @@ import os
 app = Flask(__name__)
 
 # Load the sentiment analysis CSV file
-DATA_FILE = "scripts/data/tweets_nfl_sentiment.csv"
+DATA_FILE = "data/tweets_nfl_sentiment.csv"
 
 def load_data():
     if os.path.exists(DATA_FILE):

@@ -1,7 +1,3 @@
 Flask
-requests
-tweepy
 pandas
-numpy
-tensorflow
-torch
+tweepy
