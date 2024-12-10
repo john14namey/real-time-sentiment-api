@@ -3,16 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sentiment Analysis Dashboard</title>
+    <title>Real-Time Sentiment Analysis Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            margin-top: 20px;
+            color: #333;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        canvas {
+            margin-top: 20px;
+        }
+        .error-message {
+            color: red;
+            font-size: 1.2em;
+        }
+    </style>
 </head>
 <body>
-    <h1>Sentiment Analysis Dashboard</h1>
-    <canvas id="sentimentChart" width="400" height="200"></canvas>
+    <h1>Real-Time Sentiment Analysis Dashboard</h1>
+    <div class="container">
+        <canvas id="sentimentChart" width="400" height="200"></canvas>
+        <p id="error" class="error-message" style="display: none;">Error fetching sentiment data. Please try again later.</p>
+    </div>
 
     <script>
         fetch('/api/sentiment_counts')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
                 const ctx = document.getElementById('sentimentChart').getContext('2d');
                 new Chart(ctx, {
@@ -29,11 +65,25 @@
                         responsive: true,
                         scales: {
                             y: {
-                                beginAtZero: true
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Number of Tweets'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Sentiment'
+                                }
                             }
                         }
                     }
                 });
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                document.getElementById('error').style.display = 'block';
             });
     </script>
 </body>
