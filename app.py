@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 import pandas as pd
 import os
 
@@ -33,6 +33,23 @@ def get_tweets_by_sentiment(sentiment):
     if df is not None:
         filtered_df = df[df['sentiment'].str.lower() == sentiment.lower()]
         return jsonify(filtered_df.to_dict(orient='records'))
+    else:
+        return jsonify({"error": "Data file not found"}), 404
+
+# New route for the dashboard
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')
+
+# New API endpoint to get sentiment counts
+@app.route('/api/sentiment_counts')
+def sentiment_counts():
+    df = load_data()
+    if df is not None:
+        positive = len(df[df['sentiment'].str.lower() == 'positive'])
+        neutral = len(df[df['sentiment'].str.lower() == 'neutral'])
+        negative = len(df[df['sentiment'].str.lower() == 'negative'])
+        return jsonify({'positive': positive, 'neutral': neutral, 'negative': negative})
     else:
         return jsonify({"error": "Data file not found"}), 404
 
